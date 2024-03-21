@@ -1,6 +1,14 @@
 use std::cmp::min;
 
 fn main() {
+    let debug = std::env::var("DEBUG").unwrap_or("false".to_string());
+    if debug == "true" {
+        for i in std::env::vars() {
+            let (key, value) = i;
+            println!("The value of {} is: {}", key, value);
+        }
+    }
+
     {
         let x = 42;
         println!("The value of x is: {}", x);
@@ -41,98 +49,92 @@ fn main() {
             value: i32,
         }
 
-        let x = Number {
-            odd: false,
-            value: 2,
-        };
-        let y = Number {
-            value: 3,
-            odd: true,
-        };
+        {
+            let x = Number {
+                odd: false,
+                value: 2,
+            };
+            let y = Number {
+                value: 3,
+                odd: true,
+            };
 
-        fn print_number(x: Number) {
+            fn print_number(x: Number) {
+                println!(
+                    "The value of x is: {}, and it is {}",
+                    x.value,
+                    if x.odd { "odd" } else { "even" }
+                );
+            }
+
+            print_number(x);
+            print_number(y);
+        }
+
+        {
+            let x = Number {
+                odd: false,
+                value: 2,
+            };
+            let y = Number {
+                value: 3,
+                odd: true,
+            };
+
+            fn print_number(n: Number) {
+                match n.value {
+                    1 => println!("One!"),
+                    2 => println!("Two!"),
+                    _ => println!("{}", n.value),
+                }
+            }
+
+            print_number(x);
+            print_number(y);
+        }
+
+        {
+            impl Number {
+                fn is_positive(self) -> bool {
+                    self.value > 0
+                }
+            }
+
+            let minus_two = Number {
+                odd: false,
+                value: -2,
+            };
+
             println!(
-                "The value of x is: {}, and it is {}",
-                x.value,
-                if x.odd { "odd" } else { "even" }
+                "{}",
+                if minus_two.is_positive() {
+                    "positive"
+                } else {
+                    "negative"
+                }
             );
         }
 
-        print_number(x);
-        print_number(y);
-    }
+        {
+            let mut n = Number {
+                odd: true,
+                value: 17,
+            };
 
-    {
-        struct Number {
-            odd: bool,
-            value: i32,
+            println!(
+                "The value of n is: {}, and it is {}",
+                n.value,
+                if n.odd { "odd" } else { "even" }
+            );
+
+            n.value = 19;
+
+            println!(
+                "The value of n is: {}, and it is {}",
+                n.value,
+                if n.odd { "odd" } else { "even" }
+            );
         }
-
-        let x = Number {
-            odd: false,
-            value: 2,
-        };
-        let y = Number {
-            value: 3,
-            odd: true,
-        };
-
-        fn print_number(n: Number) {
-            match n.value {
-                1 => println!("One!"),
-                2 => println!("Two!"),
-                _ => println!("{}", n.value),
-            }
-        }
-
-        print_number(x);
-        print_number(y);
-    }
-
-    {
-        struct Number {
-            odd: bool,
-            value: i32,
-        }
-
-        impl Number {
-            fn is_positive(self) -> bool {
-                self.value > 0
-            }
-        }
-
-        let minus_two = Number {
-            odd: false,
-            value: -2,
-        };
-
-        print!("{}", minus_two.is_positive());
-    }
-
-    {
-        struct Number {
-            odd: bool,
-            value: i32,
-        }
-
-        let mut n = Number {
-            odd: true,
-            value: 17,
-        };
-
-        println!(
-            "The value of n is: {}, and it is {}",
-            n.value,
-            if n.odd { "odd" } else { "even" }
-        );
-
-        n.value = 19;
-
-        println!(
-            "The value of n is: {}, and it is {}",
-            n.value,
-            if n.odd { "odd" } else { "even" }
-        );
     }
 
     {
@@ -179,15 +181,23 @@ fn main() {
         println!("The value of v2 is: {:?}", v2);
     }
 
-    // {
-    //     panic!("crash and burn");
-    // }
+    {
+        let should_panic = std::env::var("SHOULD_PANIC").unwrap_or("false".to_string());
+        if should_panic == "true" {
+            panic!("I was told to panic")
+        } else {
+            println!("I was told not to panic")
+        }
+    }
 
     {
+        // you can unwrap a Some value to get the value inside
         let o1: Option<i32> = Some(128);
         o1.unwrap();
 
-        let o2: Option<i32> = None;
+        // you can't unwrap a None value, it will panic
+        // this is commented out to prevent the panic
+        // let o2: Option<i32> = None;
         // o2.unwrap();
     }
 
@@ -206,9 +216,11 @@ fn main() {
     {
         // 0 or greater
         let first = (0..).contains(&100); // true
-                                          // 20 or less than 20
+
+        // 20 or less than 20
         let second = (..=20).contains(&20); // true
-                                            // only 3, 4, 5
+
+        // only 3, 4, 5
         let third = (3..6).contains(&4); // true
 
         println!("The value of first is: {}", first);
